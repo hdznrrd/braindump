@@ -9,11 +9,10 @@ OPTIONS = -DF_CPU=48000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH
 # options needed by many Arduino libraries to configure for Teensy 3.0
 #OPTIONS += -D__MK20DX128__ -DARDUIO=105 -DTEENSYDUINO=118
 
-
 CPPFLAGS = -Wall -g -Os -mcpu=$(CPU) -mthumb -nostdlib -MMD $(OPTIONS) -I.
 CXXFLAGS = -std=gnu++0x -felide-constructors -fno-exceptions -fno-rtti
 CFLAGS =
-LDFLAGS = -Os -Wl,--gc-sections -mcpu=$(CPU) -mthumb -Tmk20dx128.ld
+LDFLAGS = -Os -Wl,--gc-sections -mcpu=$(CPU) -mthumb -Tmk20dx256.ld
 LIBS = -lm
 
 CC = arm-none-eabi-gcc
@@ -21,7 +20,7 @@ CXX = arm-none-eabi-g++
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
 TEENSY_LOADER_CLI = ~/Development/teensy_loader_cli/teensy_loader_cli
-
+FORMAT = ihex
 
 
 # Other Makefiles and project templates for Teensy 3.x:
@@ -40,7 +39,7 @@ OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
 
 all: $(TARGET).hex
 
-$(TARGET).elf: $(OBJS) mk20dx128.ld
+$(TARGET).elf: $(OBJS) mk20dx256.ld
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 # from teensyduino
@@ -54,10 +53,10 @@ $(TARGET).elf: $(OBJS) mk20dx128.ld
 # from teensy website
 # Create final output files (.hex, .eep) from ELF output file.
 %.hex: %.elf
-        @echo
-        @echo $(MSG_FLASH) $@
-        $(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
-        $(TEENSY_LOADER_CLI) -mmcu=$(MCU) -w -v $@
+	@echo
+	@echo $(MSG_FLASH) $@
+	$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
+	$(TEENSY_LOADER_CLI) -mmcu=$(MCU) -w -v $@
 
 
 # compiler generated dependency info
